@@ -38,14 +38,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request){
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.mail(), request.password())
         );
 
         UserDetails user = (UserDetails) auth.getPrincipal();
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new AuthResponse(token)); // ✅ Format cohérent
     }
 
     @PostMapping("/register/medecin")
