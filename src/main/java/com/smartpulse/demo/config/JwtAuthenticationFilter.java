@@ -1,6 +1,6 @@
 package com.smartpulse.demo.config;
 
-import com.smartpulse.demo.Service.JwtService;
+import com.smartpulse.demo.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,26 +41,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // (garde le code que tu as déjà — il est correct)
         try {
             final String authHeader = request.getHeader("Authorization");
-            logger.debug("AuthHeader reçu : {}", authHeader);
+//            logger.debug("AuthHeader reçu : {}", authHeader);
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                logger.debug("Pas de Bearer Token – on passe au filtre suivant");
+//                logger.debug("Pas de Bearer Token – on passe au filtre suivant");
                 filterChain.doFilter(request, response);
                 return;
             }
 
             final String jwt = authHeader.substring(7).trim();
-            logger.debug("Token extrait (truncated 50): {}", jwt.length() > 50 ? jwt.substring(0,50) + "..." : jwt);
+//            logger.debug("Token extrait (truncated 50): {}", jwt.length() > 50 ? jwt.substring(0,50) + "..." : jwt);
 
             final String userMail = jwtService.extractUsername(jwt);
-            logger.debug("Mail extrait du token : {}", userMail);
+//            logger.debug("Mail extrait du token : {}", userMail);
 
             if (userMail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userMail);
-                logger.debug("Utilisateur chargé depuis BD : {}", userDetails != null ? userDetails.getUsername() : "NULL");
+//                logger.debug("Utilisateur chargé depuis BD : {}", userDetails != null ? userDetails.getUsername() : "NULL");
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    logger.debug("Token VALID pour {}", userMail);
+//                    logger.debug("Token VALID pour {}", userMail);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

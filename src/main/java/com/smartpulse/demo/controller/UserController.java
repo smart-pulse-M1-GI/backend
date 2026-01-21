@@ -1,20 +1,19 @@
 package com.smartpulse.demo.controller;
 
-import com.smartpulse.demo.Service.JwtService;
-import com.smartpulse.demo.Service.UserService;
-import com.smartpulse.demo.model.DTO.AuthResponse;
+import com.smartpulse.demo.service.UserService;
 import com.smartpulse.demo.model.DTO.UserProfileResponse;
 import com.smartpulse.demo.model.Enum.Role;
 import com.smartpulse.demo.model.entity.Medecin;
+import com.smartpulse.demo.model.entity.Patient;
 import com.smartpulse.demo.model.entity.User;
-import com.smartpulse.demo.repository.UserRepository;
+import com.smartpulse.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -24,6 +23,8 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
+    private final MedecinRepository medecinRepository;
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
@@ -34,6 +35,60 @@ public class UserController {
         User user = userRepository.findByMail(userDetails.getUsername()).get();
         UserProfileResponse response = userService.getUserInfo(user);
         return ResponseEntity.ok(response);
+    }
+
+    // 1. Obtenir les infos sur le MÉDECIN du patient connecté
+    @GetMapping("/my-doctor")
+    public ResponseEntity<UserProfileResponse> getMyDoctor(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByMail(userDetails.getUsername()).get();
+        Patient patient = patientRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Profil patient non trouvé"));
+
+        if (patient.getMedecin() == null) return ResponseEntity.noContent().build();
+
+        // On récupère le User lié au Médecin pour générer la réponse
+        return ResponseEntity.ok(userService.getUserInfo(patient.getMedecin().getUser()));
+    }
+
+    // 2. Obtenir la liste des PATIENTS du médecin connecté
+    @GetMapping("/my-patients")
+    public ResponseEntity<List<UserProfileResponse>> getMyPatients(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByMail(userDetails.getUsername()).get();
+        Medecin medecin = medecinRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Profil médecin non trouvé"));
+
+        List<Patient> patients = patientRepository.findByMedecin(medecin);
+        List<UserProfileResponse> response = patients.stream()
+                .map(p -> userService.getUserInfo(p.getUser()))
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 3. Modifier son profil (Patient ou Médecin)
+    @PutMapping("/update")
+    public ResponseEntity<UserProfileResponse> updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody UserProfileResponse req) {
+
+        User user = userRepository.findByMail(userDetails.getUsername()).get();
+
+        if (user.getRole() == Role.PATIENT) {
+            Patient p = patientRepository.findByUser(user).get();
+            p.setNom(req.nom());
+            p.setPrenom(req.prenom());
+            p.setDateNaissance(req.dateNaissance());
+            patientRepository.save(p);
+        } else {
+            Medecin m = medecinRepository.findByUser(user).get();
+            m.setNom(req.nom());
+            m.setPrenom(req.prenom());
+            m.setSpecialite(req.specialite());
+            m.setDateNaissance(req.dateNaissance());
+            medecinRepository.save(m);
+        }
+
+        return ResponseEntity.ok(userService.getUserInfo(user));
     }
 
 }

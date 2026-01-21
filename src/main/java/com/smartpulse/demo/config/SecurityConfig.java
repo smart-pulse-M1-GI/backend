@@ -1,6 +1,6 @@
 package com.smartpulse.demo.config;
 
-import com.smartpulse.demo.Service.JwtService;
+import com.smartpulse.demo.service.JwtService;
 import com.smartpulse.demo.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -61,18 +61,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
+                // 1. Activation du CORS (utilise WebMvcConfigurer)
+                .cors(AbstractHttpConfigurer::disable) // ← CHANGEMENT IMPORTANT
+
+                // 2. Désactivation du CSRF (Crucial pour l'Arduino et les API Stateless)
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .sessionManagement(sess ->
                         sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // Autorise l'Arduino (Réception des données du pouls)
+                        .requestMatchers("/api/v1/cardiac/**").permitAll()
+
+                        // Autorise la connexion initiale WebSocket (Handshake)
+                        .requestMatchers("/ws-cardiac/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint(authenticationEntryPoint())
                 )
+                // 3. Votre filtre JWT existant
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);
 

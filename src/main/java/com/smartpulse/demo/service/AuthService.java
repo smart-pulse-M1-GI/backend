@@ -1,7 +1,6 @@
-package com.smartpulse.demo.Service;
+package com.smartpulse.demo.service;
 
 import com.smartpulse.demo.model.DTO.AuthResponse;
-import com.smartpulse.demo.model.DTO.LoginRequest;
 import com.smartpulse.demo.model.DTO.RegisterMedecinRequest;
 import com.smartpulse.demo.model.DTO.RegisterPatientRequest;
 import com.smartpulse.demo.model.Enum.Role;
@@ -11,22 +10,11 @@ import com.smartpulse.demo.repository.MedecinRepository;
 import com.smartpulse.demo.repository.PatientRepository;
 import com.smartpulse.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import com.smartpulse.demo.model.entity.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
 
 // src/main/java/com/smartpulse/demo/service/AuthService.java
 @Service

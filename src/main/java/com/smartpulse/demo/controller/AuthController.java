@@ -1,7 +1,7 @@
 package com.smartpulse.demo.controller;
 
-import com.smartpulse.demo.Service.AuthService;
-import com.smartpulse.demo.Service.JwtService;
+import com.smartpulse.demo.service.AuthService;
+import com.smartpulse.demo.service.JwtService;
 import com.smartpulse.demo.model.DTO.AuthResponse;
 import com.smartpulse.demo.model.DTO.LoginRequest;
 import com.smartpulse.demo.model.DTO.RegisterMedecinRequest;
@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor

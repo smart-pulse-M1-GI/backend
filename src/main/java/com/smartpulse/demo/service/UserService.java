@@ -1,4 +1,4 @@
-package com.smartpulse.demo.Service;
+package com.smartpulse.demo.service;
 
 import com.smartpulse.demo.model.DTO.UserProfileResponse;
 import com.smartpulse.demo.model.Enum.Role;
@@ -9,7 +9,6 @@ import com.smartpulse.demo.repository.MedecinRepository;
 import com.smartpulse.demo.repository.PatientRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

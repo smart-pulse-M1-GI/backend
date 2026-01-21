@@ -1,4 +1,4 @@
-package com.smartpulse.demo.Service;
+package com.smartpulse.demo.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
