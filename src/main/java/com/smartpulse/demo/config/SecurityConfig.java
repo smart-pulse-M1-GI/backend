@@ -19,6 +19,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -62,7 +63,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
                 // 1. Activation du CORS (utilise WebMvcConfigurer)
-                .cors(AbstractHttpConfigurer::disable) // ← CHANGEMENT IMPORTANT
+                .cors(cors -> cors.configurationSource(request -> {
+                    org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+                    config.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000"));
+                    config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                    config.setAllowedHeaders(java.util.Collections.singletonList("*"));
+                    config.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
+                    config.setAllowCredentials(true);
+                    config.setMaxAge(3600L);
+                    return config;
+                }))
 
                 // 2. Désactivation du CSRF (Crucial pour l'Arduino et les API Stateless)
                 .csrf(AbstractHttpConfigurer::disable)
