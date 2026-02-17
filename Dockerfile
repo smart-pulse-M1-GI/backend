@@ -1,6 +1,6 @@
 # Étape 1 : build
 FROM maven:3.9.7-eclipse-temurin-22-jdk AS build
-yWORKDIR /app
+WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
