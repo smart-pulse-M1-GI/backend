@@ -66,7 +66,7 @@ public class AuthController {
     @PostMapping("/register-test")
     public String registerTest() {
         User user = new User();
-        user.setMail("doc@exemple2.com");
+        user.setMail("doc@exemple.com");
         user.setPassword(passwordEncoder.encode("123456"));
         user.setRole(Role.MEDECIN);
 
@@ -78,6 +78,6 @@ public class AuthController {
 
         userRepository.save(user);
         medecinRepository.save(medecin);
-        return "Médecin créé → login : doc@exemple2.com / 123456";
+        return "Médecin créé → login : doc@exemple.com / 123456";
     }
 }
