@@ -17,6 +17,7 @@ public class WebConfig {
                         // Utiliser allowedOriginPatterns au lieu de allowedOrigins
                         .allowedOriginPatterns(
                                 "http://localhost:3000",
+                                "https://smart-pulse-frontend.vercel.app",
                                 "http://localhost:*",
                                 "http://127.0.0.1:*"
                         )
