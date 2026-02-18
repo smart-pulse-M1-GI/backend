@@ -65,7 +65,10 @@ public class SecurityConfig {
                 // 1. Activation du CORS (utilise WebMvcConfigurer)
                 .cors(cors -> cors.configurationSource(request -> {
                     org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000"));
+                    config.setAllowedOrigins(java.util.Arrays.asList(
+                            "http://localhost:3000",
+                            "https://smart-pulse-frontend.vercel.app")
+                    );
                     config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                     config.setAllowedHeaders(java.util.Collections.singletonList("*"));
                     config.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
