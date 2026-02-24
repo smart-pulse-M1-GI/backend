@@ -1,6 +1,6 @@
 package com.smartpulse.demo.controller;
 
-import com.smartpulse.demo.config.JwtAuthenticationFilter;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.smartpulse.demo.model.DTO.PulseDataDTO;
 import com.smartpulse.demo.model.DTO.StartSessionRequest;
 import com.smartpulse.demo.model.entity.CardiacSession;
@@ -50,28 +50,46 @@ public class CardiacController {
     }
 
     @PostMapping("/receive")
-    public void receiveFromArduino(@RequestBody PulseDataDTO data) {
-        logger.debug("Received BPM: {}, Status: {}", data.bpm_current(), data.status());
+    public void receiveFromDevice(@RequestBody JsonNode payload) {
+        // 1. Recherche récursive de la clé "bpm_current" peu importe la structure
+        JsonNode bpmNode = payload.findValue("bpm_current");
+
+        if (bpmNode == null || bpmNode.isMissingNode()) {
+            logger.warn("Données reçues ignorées : clé 'bpm_current' introuvable dans le JSON.");
+            return;
+        }
+
+        int bpmValue = bpmNode.asInt();
+
+        // On essaie aussi de trouver le statut, sinon on met "unknown"
+        JsonNode statusNode = payload.findValue("status");
+        String statusValue = (statusNode != null) ? statusNode.asText() : "N/A";
+
+        logger.debug("BPM extrait : {}, Status extrait : {}", bpmValue, statusValue);
+
+        // 2. Logique métier habituelle
         Long activeSessionId = sessionManager.getActiveSessionId();
 
         if (activeSessionId == null) {
-            logger.warn("Données reçues mais aucune session active (temps expiré ?)");
+            logger.warn("Données reçues mais aucune session active.");
             return;
         }
 
         CardiacSession session = sessionRepository.findById(activeSessionId).orElse(null);
         if (session != null) {
+            // Enregistrement en base de données
             HeartRateRecord record = new HeartRateRecord();
-            record.setBpm(data.bpm_current());
+            record.setBpm(bpmValue);
             record.setTimestamp(LocalDateTime.now());
             record.setSession(session);
             heartRateRepository.save(record);
 
-            //APPEL DU SERVICE DE CONTRÔLE DES SEUILS
-            monitoringService.checkBpmThresholds(session.getPatientId(), data.bpm_current());
+            // Contrôle des seuils
+            monitoringService.checkBpmThresholds(session.getPatientId(), bpmValue);
 
-            // Diffusion WebSocket pour le graphique en temps réel
-            messagingTemplate.convertAndSend("/topic/pulse", data);
+            // 3. ENVOI AU FRONTEND (on garde le format DTO original pour ne pas casser le front)
+            PulseDataDTO frontData = new PulseDataDTO(bpmValue, statusValue);
+            messagingTemplate.convertAndSend("/topic/pulse", frontData);
         }
     }
 

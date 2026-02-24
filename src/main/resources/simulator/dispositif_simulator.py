@@ -39,7 +39,7 @@ def simulate_pulse():
 
             # Construction du DTO correspondant à PulseDataDTO(int bpm, String status)
             payload = {
-                "bpm": current_bpm,
+                "bpm_current": current_bpm,
                 "status": "calculating" if random.random() < 0.1 else "stable"
             }
 
