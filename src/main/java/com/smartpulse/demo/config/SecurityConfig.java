@@ -88,6 +88,8 @@ public class SecurityConfig {
 
                         // Autorise l'Arduino (Réception des données du pouls)
                         .requestMatchers("/api/v1/cardiac/**").permitAll()
+                        // Autorise l'Arduino (Réception des données du pouls)
+                        .requestMatchers("/api/v1/device/**").permitAll()
 
                         // Autorise la connexion initiale WebSocket (Handshake)
                         .requestMatchers("/ws-cardiac/**").permitAll()

@@ -24,8 +24,10 @@ com\smartpulse\demo\model\entity\HeartRateRecord.class
 com\smartpulse\demo\model\entity\Activity.class
 com\smartpulse\demo\controller\ActivityController.class
 com\smartpulse\demo\repository\PatientRepository.class
+com\smartpulse\demo\controller\CardiacTestController.class
 com\smartpulse\demo\model\DTO\UserProfileResponse.class
 com\smartpulse\demo\repository\SessionRepository.class
+com\smartpulse\demo\model\DTO\UpdateProfileRequest.class
 com\smartpulse\demo\repository\UserRepository.class
 com\smartpulse\demo\model\entity\Seuil.class
 com\smartpulse\demo\model\entity\Medecin.class

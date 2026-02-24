@@ -2,6 +2,7 @@ package com.smartpulse.demo.controller;
 
 import com.smartpulse.demo.service.UserService;
 import com.smartpulse.demo.model.DTO.UserProfileResponse;
+import com.smartpulse.demo.model.DTO.UpdateProfileRequest;
 import com.smartpulse.demo.model.Enum.Role;
 import com.smartpulse.demo.model.entity.Medecin;
 import com.smartpulse.demo.model.entity.Patient;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final PatientRepository patientRepository;
     private final MedecinRepository medecinRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
@@ -65,11 +68,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // 3. Modifier son profil (Patient ou Médecin)
+    // 3. Modifier son profil (Patient ou Médecin) + mot de passe
     @PutMapping("/update")
     public ResponseEntity<UserProfileResponse> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody UserProfileResponse req) {
+            @RequestBody UpdateProfileRequest req) {
 
         User user = userRepository.findByMail(userDetails.getUsername()).get();
 
@@ -86,6 +89,12 @@ public class UserController {
             m.setSpecialite(req.specialite());
             m.setDateNaissance(req.dateNaissance());
             medecinRepository.save(m);
+        }
+
+        // Mise à jour du mot de passe si fourni
+        if (req.password() != null && !req.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(req.password()));
+            userRepository.save(user);
         }
 
         return ResponseEntity.ok(userService.getUserInfo(user));

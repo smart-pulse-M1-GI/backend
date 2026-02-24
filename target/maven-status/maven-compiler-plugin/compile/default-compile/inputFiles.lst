@@ -5,6 +5,7 @@ D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\config\WebSocket
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\ActivityController.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\AuthController.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\CardiacController.java
+D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\CardiacTestController.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\NotificationController.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\SeuilController.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\controller\testController.java
@@ -20,6 +21,7 @@ D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\Regist
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\SeuilResponse.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\StartActivitySessionRequest.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\StartSessionRequest.java
+D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\UpdateProfileRequest.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\DTO\UserProfileResponse.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\entity\Activity.java
 D:\GitHub\smart-pulse-backend\src\main\java\com\smartpulse\demo\model\entity\CardiacSession.java

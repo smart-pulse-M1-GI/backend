@@ -51,7 +51,7 @@ public class CardiacController {
 
     @PostMapping("/receive")
     public void receiveFromArduino(@RequestBody PulseDataDTO data) {
-        logger.debug("Received BPM: {}, Status: {}", data.bpm(), data.status());
+        logger.debug("Received BPM: {}, Status: {}", data.bpm_current(), data.status());
         Long activeSessionId = sessionManager.getActiveSessionId();
 
         if (activeSessionId == null) {
@@ -62,13 +62,13 @@ public class CardiacController {
         CardiacSession session = sessionRepository.findById(activeSessionId).orElse(null);
         if (session != null) {
             HeartRateRecord record = new HeartRateRecord();
-            record.setBpm(data.bpm());
+            record.setBpm(data.bpm_current());
             record.setTimestamp(LocalDateTime.now());
             record.setSession(session);
             heartRateRepository.save(record);
 
             //APPEL DU SERVICE DE CONTRÔLE DES SEUILS
-            monitoringService.checkBpmThresholds(session.getPatientId(), data.bpm());
+            monitoringService.checkBpmThresholds(session.getPatientId(), data.bpm_current());
 
             // Diffusion WebSocket pour le graphique en temps réel
             messagingTemplate.convertAndSend("/topic/pulse", data);

@@ -1,0 +1,7 @@
+port        5432
+Database    bd_smartpulse_backend
+Username    bd_smartpulse_backend_user
+Password    5TPbghytH5q20XA2sK4LWhGY50lLDy8o
+
+
+postgresql://bd_smartpulse_backend_user:5TPbghytH5q20XA2sK4LWhGY50lLDy8o@dpg-d6a62h3nv86c73fa1kmg-a/bd_smartpulse_backend

@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.annotation.Bean;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// NOTE: plus de @Component ici — on créera le bean explicitement dans SecurityConfig
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -28,39 +26,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        logger.info("***** TEST : JwtAuthenticationFilter instancié *****");
+        logger.info("***** JwtAuthenticationFilter instancié *****");
     }
 
-    @Bean
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        // (garde le code que tu as déjà — il est correct)
         try {
             final String authHeader = request.getHeader("Authorization");
-//            logger.debug("AuthHeader reçu : {}", authHeader);
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//                logger.debug("Pas de Bearer Token – on passe au filtre suivant");
                 filterChain.doFilter(request, response);
                 return;
             }
 
             final String jwt = authHeader.substring(7).trim();
-//            logger.debug("Token extrait (truncated 50): {}", jwt.length() > 50 ? jwt.substring(0,50) + "..." : jwt);
 
             final String userMail = jwtService.extractUsername(jwt);
-//            logger.debug("Mail extrait du token : {}", userMail);
 
             if (userMail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userMail);
-//                logger.debug("Utilisateur chargé depuis BD : {}", userDetails != null ? userDetails.getUsername() : "NULL");
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-//                    logger.debug("Token VALID pour {}", userMail);
+                    logger.debug("Token VALID pour {}", userMail);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -71,8 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     logger.info("Token INVALID pour {}", userMail);
                 }
-            } else {
-                logger.debug("Mail NULL ou déjà authentifié – on skip");
             }
         } catch (Exception ex) {
             logger.error("Erreur dans JwtAuthenticationFilter: {}", ex.getMessage(), ex);
