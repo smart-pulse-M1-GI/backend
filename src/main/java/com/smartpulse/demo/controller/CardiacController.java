@@ -1,6 +1,7 @@
 package com.smartpulse.demo.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartpulse.demo.model.DTO.PulseDataDTO;
 import com.smartpulse.demo.model.DTO.StartSessionRequest;
 import com.smartpulse.demo.model.entity.CardiacSession;
@@ -26,6 +27,7 @@ public class CardiacController {
     private final SimpMessagingTemplate messagingTemplate;
     private final SessionManagerService sessionManager;
     private final MonitoringService monitoringService; // Injection du nouveau service
+    private final ObjectMapper objectMapper = new ObjectMapper(); // Ou injectez-le via le constructeur
 
     private static final Logger logger = LoggerFactory.getLogger(CardiacController.class);
 
@@ -51,21 +53,43 @@ public class CardiacController {
 
     @PostMapping("/receive")
     public void receiveFromDevice(@RequestBody JsonNode payload) {
+        int bpmValue = -1;
+        String statusValue = "N/A";
+
         // 1. Recherche récursive de la clé "bpm_current" peu importe la structure
         JsonNode bpmNode = payload.findValue("bpm_current");
 
         if (bpmNode == null || bpmNode.isMissingNode()) {
-            logger.warn("Données reçues ignorées : clé 'bpm_current' introuvable dans le JSON.");
+            JsonNode objectJsonNode = payload.get("objectJSON");
+
+            if (objectJsonNode != null && objectJsonNode.isTextual()) {
+                try {
+                    // On transforme la CHAÎNE 'objectJSON' en un véritable OBJET JSON
+                    JsonNode internalNode = objectMapper.readTree(objectJsonNode.asText());
+                    bpmNode = internalNode.findValue("bpm_current");
+
+                    // On en profite pour chercher le status aussi à l'intérieur
+                    JsonNode sNode = internalNode.findValue("status");
+                    if (sNode != null) statusValue = sNode.asText();
+
+                } catch (Exception e) {
+                    logger.error("Erreur lors du parsing de objectJSON : {}", e.getMessage());
+                }
+            }
+        } else {
+            // Si trouvé directement (WiFi), on récupère le status au même niveau
+            JsonNode sNode = payload.findValue("status");
+            if (sNode != null) statusValue = sNode.asText();
+        }
+
+        //verif finale
+        if (bpmNode == null || bpmNode.isMissingNode()) {
+            logger.warn("Données reçues ignorées : clé 'bpm_current' introuvable (même dans objectJSON).");
             return;
         }
 
-        int bpmValue = bpmNode.asInt();
-
-        // On essaie aussi de trouver le statut, sinon on met "unknown"
-        JsonNode statusNode = payload.findValue("status");
-        String statusValue = (statusNode != null) ? statusNode.asText() : "N/A";
-
-        logger.debug("BPM extrait : {}, Status extrait : {}", bpmValue, statusValue);
+        bpmValue = bpmNode.asInt();
+        logger.info("BPM détecté : {} via {}", bpmValue, (payload.has("objectJSON") ? "LoRaWAN" : "WiFi"));
 
         // 2. Logique métier habituelle
         Long activeSessionId = sessionManager.getActiveSessionId();
